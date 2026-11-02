@@ -1,0 +1,78 @@
+name: Update Caddy
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: update-caddy
+  cancel-in-progress: false
+
+env:
+  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+jobs:
+  update:
+    name: Update Caddy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          cache: true
+
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: Setup SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: github.com
+
+      - name: Use SSH remote
+        run: git remote set-url origin git@github.com:${{ github.repository }}.git
+
+      - name: Update
+        run: pnpm ga:update-caddy
+
+      - name: Check changes
+        id: changes
+        run: |
+          if git diff --quiet -- package.json; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit
+        if: steps.changes.outputs.updated == 'true'
+        run: |
+          git config user.name ${{ vars.GIT_USER_NAME }}
+          git config user.email ${{ vars.GIT_USER_EMAIL }}
+          git add package.json
+          git commit -m "feat: update caddy"
+          git push --no-verify
+
+      - name: Notify Caddy updated
+        if: steps.changes.outputs.updated == 'true'
+        run: pnpm ga:notify success "[@b12k/caddy] Caddy updated."
+
+      - name: Notify Caddy not changed
+        if: steps.changes.outputs.updated == 'false'
+        run: pnpm ga:notify info "[@b12k/caddy] Caddy not changed."
+
+      - name: Notify Caddy update failed
+        if: failure()
+        run: pnpm ga:notify error "[@b12k/caddy] Caddy update failed."
