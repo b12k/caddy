@@ -60,10 +60,16 @@ jobs:
           git config user.email "$GIT_USER_EMAIL"
 
       - name: Release
-        run: pnpm release
+        id: release
+        run: pnpm release --ci '--hooks.after:release=echo "published=true" >> "$GITHUB_OUTPUT"'
 
       - name: Notify release succeeded
+        if: steps.release.outputs.published == 'true'
         run: pnpm ga:notify success "[@b12k/caddy] Release succeeded."
+
+      - name: Notify release skipped
+        if: steps.release.outputs.published != 'true'
+        run: pnpm ga:notify info "[@b12k/caddy] No new version to release."
 
       - name: Notify release failed
         if: failure()
