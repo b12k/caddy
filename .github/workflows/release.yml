@@ -61,14 +61,16 @@ jobs:
 
       - name: Release
         id: release
-        run: pnpm release --ci '--hooks.after:release=echo "published=true" >> "$GITHUB_OUTPUT"'
+        run: pnpm release --ci '--hooks.after:release=echo "version=${version}" >> "$GITHUB_OUTPUT"'
 
       - name: Notify release succeeded
-        if: steps.release.outputs.published == 'true'
-        run: pnpm ga:notify success "[@b12k/caddy] Release succeeded."
+        if: steps.release.outputs.version != ''
+        env:
+          PUBLISHED_VERSION: ${{ steps.release.outputs.version }}
+        run: pnpm ga:notify success "[@b12k/caddy] Published $PUBLISHED_VERSION."
 
       - name: Notify release skipped
-        if: steps.release.outputs.published != 'true'
+        if: steps.release.outputs.version == ''
         run: pnpm ga:notify info "[@b12k/caddy] No new version to release."
 
       - name: Notify release failed
