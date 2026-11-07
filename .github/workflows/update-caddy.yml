@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
@@ -66,13 +67,13 @@ jobs:
           git push --no-verify
 
       - name: Notify Caddy updated
-        if: steps.changes.outputs.updated == 'true'
+        if: success() && steps.changes.outputs.updated == 'true'
         run: pnpm ga:notify success "[@b12k/caddy] Caddy updated."
 
       - name: Notify Caddy not changed
-        if: steps.changes.outputs.updated == 'false'
+        if: success() && steps.changes.outputs.updated == 'false'
         run: pnpm ga:notify info "[@b12k/caddy] Caddy not changed."
 
       - name: Notify Caddy update failed
         if: failure()
-        run: pnpm ga:notify error "[@b12k/caddy] Caddy update failed."
+        run: pnpm ga:notify error "[@b12k/caddy] Caddy update failed. Logs: $RUN_URL"

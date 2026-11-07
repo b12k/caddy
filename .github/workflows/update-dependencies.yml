@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
   PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: false
@@ -70,17 +71,17 @@ jobs:
           git push --no-verify
 
       - name: Notify updated
-        if: steps.changes.outputs.updated == 'true'
+        if: success() && steps.changes.outputs.updated == 'true'
         run: pnpm ga:notify success "[@b12k/caddy] Dependencies updated."
 
       - name: Notify dependencies not changed
-        if: steps.changes.outputs.updated == 'false'
+        if: success() && steps.changes.outputs.updated == 'false'
         run: pnpm ga:notify info "[@b12k/caddy] Dependencies not changed."
 
       - name: Notify warning
         if: failure() && steps.changes.outputs.updated == 'true'
-        run: pnpm ga:notify warning "[@b12k/caddy] Dependencies partially updated."
+        run: pnpm ga:notify warning "[@b12k/caddy] Dependencies partially updated. Logs: $RUN_URL"
 
       - name: Notify error
         if: failure() && steps.changes.outputs.updated == 'false'
-        run: pnpm ga:notify error "[@b12k/caddy] Dependencies update failed."
+        run: pnpm ga:notify error "[@b12k/caddy] Dependencies update failed. Logs: $RUN_URL"
