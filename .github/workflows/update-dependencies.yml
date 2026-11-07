@@ -80,8 +80,8 @@ jobs:
 
       - name: Notify warning
         if: failure() && steps.changes.outputs.updated == 'true'
-        run: pnpm ga:notify warning "[@b12k/caddy] Dependencies partially updated. Logs: $RUN_URL"
+        run: 'pnpm ga:notify warning "[@b12k/caddy] Dependencies partially updated. Logs: $RUN_URL"'
 
       - name: Notify error
         if: failure() && steps.changes.outputs.updated == 'false'
-        run: pnpm ga:notify error "[@b12k/caddy] Dependencies update failed. Logs: $RUN_URL"
+        run: 'pnpm ga:notify error "[@b12k/caddy] Dependencies update failed. Logs: $RUN_URL"'

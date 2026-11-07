@@ -76,4 +76,4 @@ jobs:
 
       - name: Notify release failed
         if: failure()
-        run: pnpm ga:notify error "[@b12k/caddy] Release failed. Logs: $RUN_URL"
+        run: 'pnpm ga:notify error "[@b12k/caddy] Release failed. Logs: $RUN_URL"'

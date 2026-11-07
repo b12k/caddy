@@ -76,4 +76,4 @@ jobs:
 
       - name: Notify Caddy update failed
         if: failure()
-        run: pnpm ga:notify error "[@b12k/caddy] Caddy update failed. Logs: $RUN_URL"
+        run: 'pnpm ga:notify error "[@b12k/caddy] Caddy update failed. Logs: $RUN_URL"'
