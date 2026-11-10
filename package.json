@@ -1,6 +1,6 @@
 {
   "name": "@b12k/caddy",
-  "version": "2.11.9-v.4",
+  "version": "2.11.9-v.5",
   "description": "The missing NPM wrapper for Caddy",
   "keywords": [
     "automatic-https",
