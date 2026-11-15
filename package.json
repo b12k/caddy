@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "boxen": "9.0.0",
-    "pnpm": "12.18.0",
+    "pnpm": "12.21.0",
     "tar": "7.5.23",
     "update-notifier": "7.3.1"
   },
@@ -89,5 +89,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@12.18.0"
+  "packageManager": "pnpm@12.21.0"
 }
